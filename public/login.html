@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1117">
+<title>Sign in — IELTS Prep</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📘</text></svg>">
+<style>
+:root {
+  --bg: #0f1117; --card: #161a23; --sunken: #0b0d12; --border: #252b38;
+  --text: #e7ebf3; --dim: #98a2b8; --faint: #6b7488; --accent: #7c9cff; --bad: #e06c75;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f6f7fa; --card: #ffffff; --sunken: #eceef4; --border: #d9dee9;
+    --text: #1b2030; --dim: #5b6478; --faint: #8a92a5; --accent: #3b5bdb; --bad: #c0392b;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px max(20px, env(safe-area-inset-left)) calc(24px + env(safe-area-inset-bottom));
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  -webkit-text-size-adjust: 100%;
+}
+.box {
+  width: 100%;
+  max-width: 360px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 24px;
+}
+.mark { font-size: 30px; line-height: 1; }
+h1 { font-size: 21px; margin: 12px 0 4px; letter-spacing: -0.02em; }
+p.sub { margin: 0 0 22px; color: var(--dim); font-size: 13.5px; }
+label {
+  display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--faint); font-weight: 600; margin: 0 0 5px;
+}
+input {
+  width: 100%;
+  /* 16px keeps iOS Safari from zooming the page when the field is focused. */
+  font: inherit; font-size: 16px;
+  background: var(--sunken);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  padding: 11px 12px;
+  margin-bottom: 14px;
+}
+input:focus { outline: none; border-color: var(--accent); }
+button {
+  width: 100%;
+  font: inherit; font-weight: 600; font-size: 15px;
+  background: var(--accent);
+  color: #0b0d12;
+  border: 0; border-radius: 9px;
+  padding: 12px 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+button:disabled { opacity: .6; cursor: default; }
+.err {
+  display: none;
+  background: color-mix(in srgb, var(--bad) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--bad) 45%, transparent);
+  color: var(--bad);
+  border-radius: 9px;
+  padding: 9px 12px;
+  font-size: 13.5px;
+  margin-bottom: 14px;
+}
+.err.on { display: block; }
+.foot { margin: 18px 0 0; font-size: 12px; color: var(--faint); text-align: center; }
+</style>
+</head>
+<body>
+<form class="box" id="form" autocomplete="on">
+  <div class="mark">📘</div>
+  <h1>IELTS Prep</h1>
+  <p class="sub">Sign in to reach your syllabus and progress.</p>
+
+  <div class="err" id="err"></div>
+
+  <label for="u">Username</label>
+  <input id="u" name="username" autocomplete="username" autocapitalize="none"
+         autocorrect="off" spellcheck="false" required autofocus>
+
+  <label for="p">Password</label>
+  <input id="p" name="password" type="password" autocomplete="current-password" required>
+
+  <button type="submit" id="go">Sign in</button>
+  <p class="foot">You stay signed in on this device for 30 days.</p>
+</form>
+
+<script>
+const form = document.getElementById('form');
+const err = document.getElementById('err');
+const go = document.getElementById('go');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  err.classList.remove('on');
+  go.disabled = true;
+  go.textContent = 'Signing in…';
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: document.getElementById('u').value,
+        password: document.getElementById('p').value,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      location.replace('/');
+      return;
+    }
+    err.textContent = data.error || 'Could not sign in.';
+    err.classList.add('on');
+  } catch (_) {
+    err.textContent = 'Could not reach the server.';
+    err.classList.add('on');
+  }
+  go.disabled = false;
+  go.textContent = 'Sign in';
+  document.getElementById('p').select();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "ielts-prep-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal IELTS syllabus reference and progress tracker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
