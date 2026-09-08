@@ -121,14 +121,37 @@ container on the internal network, which requires a login first.
 
 ### Exposing it through a tunnel
 
+The `tunnel` service runs a Cloudflare **quick tunnel**, which needs no
+Cloudflare account and no domain. It comes up with the rest of the stack; the
+login is what keeps other people out.
+
+The catch is that the hostname is random and changes on **every restart** of the
+tunnel container. To read the current one:
+
 ```bash
-# Cloudflare Tunnel
-cloudflared tunnel --url http://localhost:3200
+docker logs ielts-tunnel 2>&1 | grep trycloudflare
+# https://some-random-words-here.trycloudflare.com
 ```
 
-The tunnel gives you a public HTTPS URL; the login is what keeps other people
-out. A quick-tunnel URL changes every time cloudflared restarts, so expect to
-re-copy it. For a stable hostname, use a named tunnel on a domain you own.
+The URL can take up to a minute to appear after start. If the log instead shows
+
+```
+failed to request quick Tunnel: ... context deadline exceeded
+```
+
+that is normally Cloudflare rate-limiting quick-tunnel registration, not a
+network fault. cloudflared retries every ~16s and usually gets through on its
+own; leave it running.
+
+To run local-only with no public exposure, just skip the service:
+
+```bash
+docker compose up -d ielts tutor   # http://localhost:3200
+```
+
+For a hostname that does *not* change, you need a named tunnel on a domain in
+your own Cloudflare account — a token in `.env` and routing configured in the
+Zero Trust dashboard rather than here.
 
 ## Run it without Docker
 

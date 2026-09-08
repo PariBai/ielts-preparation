@@ -26,9 +26,13 @@ services:
     env_file:
       - .env
 
-  # Public HTTPS front door. Quick tunnels get a new random *.trycloudflare.com
-  # hostname every time this container restarts:
+  # Public HTTPS front door. Quick tunnels need no Cloudflare account, but get a
+  # new random *.trycloudflare.com hostname every time this container restarts:
   #   docker logs ielts-tunnel 2>&1 | grep trycloudflare
+  # Registration is rate-limited by Cloudflare; if it logs "failed to request
+  # quick Tunnel ... context deadline exceeded" it is usually throttling, and it
+  # retries every ~16s on its own. No env vars here on purpose — this container
+  # has no business holding the tutor API key or the account passwords.
   tunnel:
     image: cloudflare/cloudflared:latest
     container_name: ielts-tunnel
